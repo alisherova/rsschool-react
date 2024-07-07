@@ -1,0 +1,93 @@
+body {
+  background-color: #4b5fd4;
+  color: white;
+}
+.resultsSection {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.resultsList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.characterCard {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 40%;
+  margin: auto;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.characterName {
+  font-size: 28px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.characterDetails {
+  margin-top: 5px;
+}
+
+.characterDetailItem {
+  margin-bottom: 5px;
+}
+
+.search-section {
+  padding: 5rem 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.input-container {
+  margin: auto;
+  width: 550px;
+  height: 2.5rem;
+  background-color: white;
+  border: 1px solid #2d4bf0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  outline: 3px solid transparent;
+}
+
+.input-container:focus-within {
+  outline: 3px solid #c8d5f3;
+}
+
+.input-container input {
+  padding: 0 0.5rem 0 1rem;
+  margin-right: 3rem;
+  width: 100%;
+  font-size: 15px;
+  color: #1d1d1d;
+  border: none;
+  outline: none;
+}
+
+.h-line {
+  height: 50%;
+  width: 1px;
+  background-color: #1d1d1d;
+}
+
+.searchBtn {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  margin: 0.4rem 1rem 0 0.2rem;
+  font-size: 1.4rem;
+}
