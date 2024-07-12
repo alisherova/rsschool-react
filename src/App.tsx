@@ -1,29 +1,20 @@
-import { Component } from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import ErrorBoundary from '../components/ErrorBoundary';
-import SearchSection from '../components/SearchSection';
-import ResultsSection from '../components/ResultsSection';
+import { MainPage, NotFoundPage } from "../pages";
 
-
-class App extends Component {
-  state = {
-    searchTerm: localStorage.getItem('searchTerm') ? localStorage.getItem('searchTerm') : " ",
-  };
-
-  handleSearchTermChange = (newSearchTerm: string) => {
-    this.setState({ searchTerm: newSearchTerm.trim() });
-  };
-
-  render() {
-    const { searchTerm } = this.state;
-    return (
-      <ErrorBoundary>
+const App: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <BrowserRouter>
         <div className="app">
-          <SearchSection onSearch={this.handleSearchTermChange} />
-          <ResultsSection searchTerm={searchTerm} />
+          <Routes>
+            <Route path="/" element={<MainPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
         </div>
-      </ErrorBoundary>
-    );
-  }
+      </BrowserRouter>
+    </ErrorBoundary>
+  )
 }
 
 export default App;

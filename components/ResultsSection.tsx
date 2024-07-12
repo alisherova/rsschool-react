@@ -1,5 +1,6 @@
-import { Component } from 'react';
+import React from 'react';
 import { CgProfile } from "react-icons/cg";
+import Loader from './Loader';
 
 interface Character {
     name: string;
@@ -23,49 +24,42 @@ interface ResultsSectionProps {
     searchTerm: string | null;
 }
 
-interface ResultsSectionState {
-    results: Character[];
-}
+const ResultsSection: React.FC<ResultsSectionProps> = ({ searchTerm }) => {
+    const [results, setResults] = React.useState<Character[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(false);
 
-class ResultsSection extends Component<ResultsSectionProps, ResultsSectionState> {
-    state: ResultsSectionState = {
-        results: []
-    };
 
-    componentDidMount() {
-        this.fetchResults();
-    }
-
-    componentDidUpdate(prevProps: ResultsSectionProps) {
-        if (this.props.searchTerm !== prevProps.searchTerm) {
-            this.fetchResults();
-        }
-    }
-
-    fetchResults = async () => {
-        const { searchTerm } = this.props;
-        try {
-            const response = await fetch(`https://swapi.dev/api/people/?search=${encodeURIComponent(searchTerm!)}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
+    React.useEffect(() => {
+        const fetchResults = async () => {
+            if (!searchTerm) return;
+            setLoading(true);
+            try {
+                const response = await fetch(`https://swapi.dev/api/people/?search=${encodeURIComponent(searchTerm)}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data: ApiResponse = await response.json();
+                setResults(data.results);
+            } catch (error) {
+                console.error('Error fetching results:', error);
+            } finally {
+                setLoading(false);
             }
-            const data: ApiResponse = await response.json();
-            this.setState({ results: data.results });
-        } catch (error) {
-            console.error('Error fetching results:', error);
-        }
-    };
+        };
 
-    render() {
-        const { results } = this.state;
+        fetchResults();
+    }, [searchTerm]);
 
-        return (
-            <div className="resultsSection">
-                <h2>Search Results</h2>
+    return (
+        <div className="resultsSection">
+            <h2>Search Results</h2>
+            {loading ? (
+                <Loader />
+            ) : (
                 <ul className="resultsList">
                     {results.map((character: Character) => (
                         <li key={character.name} className="characterCard">
-                            <h3 className="characterName"> <CgProfile /> {character.name}</h3>
+                            <h3 className="characterName"><CgProfile /> {character.name}</h3>
                             <div className="characterDetails">
                                 <p className="characterDetailItem">Height: {character.height}</p>
                                 <p className="characterDetailItem">Mass: {character.mass}</p>
@@ -78,9 +72,9 @@ class ResultsSection extends Component<ResultsSectionProps, ResultsSectionState>
                         </li>
                     ))}
                 </ul>
-            </div>
-        );
-    }
-}
+            )}
+        </div>
+    );
+};
 
 export default ResultsSection;
