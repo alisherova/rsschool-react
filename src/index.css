@@ -2,6 +2,48 @@ body {
   background-color: honeydew;
   color: #222;
 }
+
+.mainPageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mainWrapper {
+  width: 50%;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.characterDetail {
+  width: 30%;
+  margin: auto;
+  margin-top: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #008b62;
+  border-radius: 8px;
+}
+
+.closeBtn {
+  align-self: flex-end;
+  padding: 1.2rem 1.5rem 0 0;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  transition: all 0.5s ease;
+  scale: 1.3;
+}
+
+.detailPr {
+  font-weight: 600;
+}
+
 .resultsSection {
   margin-top: 20px;
   text-align: center;
@@ -15,7 +57,7 @@ body {
 .characterCard {
   border: 1px solid #ccc;
   border-radius: 8px;
-  width: 40%;
+  width: 50%;
   margin: auto;
   padding: 10px;
   margin-bottom: 10px;

@@ -1,20 +1,22 @@
-import React, { ChangeEvent } from 'react';
-import useSearchQuery from "../hooks/useSearchQuery"
+import React, { ChangeEvent, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { CiSearch } from 'react-icons/ci';
+import useDebounce from '../hooks/useDebounce';
+import useSearchQuery from '../hooks/useSearchQuery';
 
 interface SearchSectionProps {
     onSearch: (newSearchTerm: string) => void;
 }
 
 const SearchSection: React.FC<SearchSectionProps> = ({ onSearch }) => {
-    const [searchTerm, setSearchTerm] = useSearchQuery(' ');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchTerm, setSearchTerm, setSearchTermWithUrlUpdate] = useSearchQuery(" ");
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(event.target.value.trim());
-    };
-
-    const handleSearch = () => {
-        onSearch(searchTerm);
+        setTimeout(() => {
+            setSearchTermWithUrlUpdate(event.target.value)
+        }, 500);
+        console.log(searchTerm, "search section")
     };
 
     return (
@@ -23,11 +25,11 @@ const SearchSection: React.FC<SearchSectionProps> = ({ onSearch }) => {
                 <input
                     type="text"
                     placeholder="Enter search term..."
-                    value={searchTerm}
+                    defaultValue={searchTerm}
                     onChange={handleInputChange}
                 />
-                <span className='h-line'></span>
-                <button className='searchBtn' onClick={handleSearch}>
+                <span className="h-line"></span>
+                <button className="searchBtn" onClick={() => onSearch(searchTerm)}>
                     <CiSearch />
                 </button>
             </div>

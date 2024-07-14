@@ -29,8 +29,10 @@
     "src/**/*.tsx",
     "src/**/*.ts",
     "components/*.tsx",
-    "hooks/*.tsx",
+    "components/*.jsx",
+    "hooks/*.ts",
     "pages/*.ts",
     "pages/*.tsx",
+    "hooks/useSearchQuery.ts",
   ]
 }
