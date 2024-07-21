@@ -2,7 +2,7 @@ import React from 'react'
 
 const Loader: React.FC = () => {
     return (
-        <div role="status" className='loader'></div>
+        <div role="loader-role" data-testid="loader-id" className='loader'></div>
     )
 }
 

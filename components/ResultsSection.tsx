@@ -78,8 +78,8 @@ const ResultsSection: React.FC<ChangeName> = ({ changeName, setCloseDetail, card
     const handleCardClick = (name: string) => {
         changeName(name);
         params.set('character', name.toString());
-        navigate({ search: params.toString() });
-        setCloseDetail(false)
+        navigate(`/character/${name}`);
+        setCloseDetail(true)
     };
 
     const totalPages = Math.ceil(totalCount / 10);

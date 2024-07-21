@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react'
 import SearchSection from '../components/SearchSection';
 import ResultsSection from '../components/ResultsSection';
 import CharacterDetail from '../components/CharacterDetail';
+import { Outlet } from 'react-router-dom';
 
-const MainPage: React.FC = () => {
+interface MainPageProps {
+    setCloseDetail: (value: boolean) => void;
+}
+
+const MainPage: React.FC<MainPageProps> = ({ setCloseDetail }) => {
     const [detailedCharacterName, setDetailedCharacterName] = useState<string>()
-    const [closeDetail, setCloseDetail] = React.useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState<string>(() => {
         return localStorage.getItem('searchTerm') || " ";
     });
@@ -22,7 +26,8 @@ const MainPage: React.FC = () => {
                 <SearchSection onSearch={handleSearchTermChange} />
                 <ResultsSection changeName={setDetailedCharacterName} setCloseDetail={setCloseDetail} />
             </div>
-            {closeDetail || <CharacterDetail setCloseDetail={setCloseDetail} detailedCharacterName={detailedCharacterName} />}
+            <Outlet />
+            {/* {closeDetail || } */}
         </div>
     )
 }

@@ -16,7 +16,6 @@ const SearchSection: React.FC<SearchSectionProps> = ({ onSearch }) => {
         setTimeout(() => {
             setSearchTermWithUrlUpdate(event.target.value)
         }, 500);
-        console.log(searchTerm, "search section")
     };
 
     return (
