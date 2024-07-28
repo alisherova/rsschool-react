@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom"
 import { MainPage, NotFoundPage } from "../pages";
 import ErrorBoundary from '../components/ErrorBoundary';
-import CharacterDetail from '../components/CharacterDetail';
+import { CharacterDetail } from '../components';
 
 const App: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ const App: React.FC = () => {
       navigate(`/?search=${encodeURIComponent(searchTerm)}`);
     }
   }, [searchTerm]);
-
 
   return (
     <ErrorBoundary>

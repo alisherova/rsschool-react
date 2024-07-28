@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store';
+import { setSearchTerm } from '../store/searchSlice';
 
 const useSearchQuery = (initialValue: string) => {
-  const [searchTerm, setSearchTerm] = useState<string>(() => {
-    return localStorage.getItem('searchTerm') || '';
-  });
+  const dispatch = useDispatch();
+  const searchTerm = useSelector((state: RootState) => state.search.searchTerm);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ const useSearchQuery = (initialValue: string) => {
     const params = new URLSearchParams(location.search);
     const query = params.get('search');
     if (query) {
-      setSearchTerm(query);
+      dispatch(setSearchTerm(query));
     } else if (searchTerm && searchTerm !== ' ') {
       params.set('search', searchTerm);
       navigate({ search: params.toString() });
@@ -21,14 +23,13 @@ const useSearchQuery = (initialValue: string) => {
   }, [location.search]);
 
   const setSearchTermWithUrlUpdate = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm);
-    localStorage.setItem('searchTerm', newSearchTerm);
+    dispatch(setSearchTerm(newSearchTerm));
     const params = new URLSearchParams(location.search);
     params.set('search', newSearchTerm);
     navigate({ search: params.toString() });
   };
 
-  return [searchTerm, setSearchTerm, setSearchTermWithUrlUpdate] as const;
+  return [searchTerm, setSearchTermWithUrlUpdate] as const;
 };
 
 export default useSearchQuery;

@@ -1,28 +1,55 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import configureStore, { MockStore } from 'redux-mock-store';
 import ResultsSection from '../../components/ResultsSection';
-import '@testing-library/jest-dom';
-import useSearchQuery from '../../hooks/useSearchQuery';
+import { RootState } from '../../store';
+import { apiSlice } from '../../store/apiSlice';
 
-// Mock the useSearchQuery hook
-jest.mock('../../hooks/useSearchQuery', () => ({
-    __esModule: true,
-    default: jest.fn(),
-}));
-
-// Mock global fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+const mockStore = configureStore<RootState>([]);
 
 describe('ResultsSection Component', () => {
+    let store: MockStore<RootState>;
+
     beforeEach(() => {
+        store = mockStore({
+            theme: {
+                theme: 'light',
+            },
+            character: {
+                items: [],
+                selectedCharacter: null,
+                closeDetail: true,
+                selectedItems: [],
+            },
+            search: {
+                searchTerm: '',
+            },
+            [apiSlice.reducerPath]: {
+                queries: {},
+                mutations: {},
+                provided: {},
+                subscriptions: {},
+                config: {
+                    reducerPath: apiSlice.reducerPath,
+                    refetchOnMountOrArgChange: false,
+                    refetchOnReconnect: false,
+                    refetchOnFocus: false,
+                    online: true,
+                    focused: true,
+                    middlewareRegistered: true,
+                    keepUnusedDataFor: 60,
+                    invalidationBehavior: "delayed",
+                },
+            },
+        });
+
         jest.clearAllMocks();
-        (useSearchQuery as jest.Mock).mockReturnValue(['Luke']);
     });
 
     it('renders loader while fetching data', async () => {
-        mockFetch.mockImplementation(() =>
+        global.fetch = jest.fn(() =>
             Promise.resolve({
                 ok: true,
                 json: () => Promise.resolve({ count: 0, next: null, previous: null, results: [] }),
@@ -30,18 +57,20 @@ describe('ResultsSection Component', () => {
         );
 
         render(
-            <Router>
-                <ResultsSection changeName={jest.fn()} setCloseDetail={jest.fn()} />
-            </Router>
+            <Provider store={store}>
+                <Router>
+                    <ResultsSection setCloseDetail={jest.fn()} />
+                </Router>
+            </Provider>
         );
 
         expect(screen.getByRole('status')).toBeInTheDocument();
 
-        await waitFor(() => expect(mockFetch).toHaveBeenCalled());
+        await waitFor(() => expect(global.fetch).toHaveBeenCalled());
     });
 
     it('renders results and pagination after fetching data', async () => {
-        mockFetch.mockImplementation(() =>
+        global.fetch = jest.fn(() =>
             Promise.resolve({
                 ok: true,
                 json: () => Promise.resolve({
@@ -54,9 +83,11 @@ describe('ResultsSection Component', () => {
         );
 
         render(
-            <Router>
-                <ResultsSection changeName={jest.fn()} setCloseDetail={jest.fn()} />
-            </Router>
+            <Provider store={store}>
+                <Router>
+                    <ResultsSection setCloseDetail={jest.fn()} />
+                </Router>
+            </Provider>
         );
 
         await waitFor(() => expect(screen.getByText('Luke Skywalker')).toBeInTheDocument());
@@ -71,7 +102,7 @@ describe('ResultsSection Component', () => {
             useNavigate: () => mockNavigate,
         }));
 
-        mockFetch.mockImplementation(() =>
+        global.fetch = jest.fn(() =>
             Promise.resolve({
                 ok: true,
                 json: () => Promise.resolve({
@@ -84,15 +115,16 @@ describe('ResultsSection Component', () => {
         );
 
         render(
-            <Router>
-                <ResultsSection changeName={jest.fn()} setCloseDetail={jest.fn()} />
-            </Router>
+            <Provider store={store}>
+                <Router>
+                    <ResultsSection setCloseDetail={jest.fn()} />
+                </Router>
+            </Provider>
         );
 
         await waitFor(() => screen.getByText('Luke Skywalker'));
 
-        fireEvent.click(screen.getByRole('button', { name: /2/i })); // Click on page 2
-
+        fireEvent.click(screen.getByRole('button', { name: /2/i }));
     });
 
     it('handles card click correctly', async () => {
@@ -105,7 +137,7 @@ describe('ResultsSection Component', () => {
             useNavigate: () => mockNavigate,
         }));
 
-        mockFetch.mockImplementation(() =>
+        global.fetch = jest.fn(() =>
             Promise.resolve({
                 ok: true,
                 json: () => Promise.resolve({
@@ -118,12 +150,13 @@ describe('ResultsSection Component', () => {
         );
 
         render(
-            <Router>
-                <ResultsSection
-                    changeName={mockChangeName}
-                    setCloseDetail={mockSetCloseDetail}
-                />
-            </Router>
+            <Provider store={store}>
+                <Router>
+                    <ResultsSection
+                        setCloseDetail={mockSetCloseDetail}
+                    />
+                </Router>
+            </Provider>
         );
 
         await waitFor(() => screen.getByText('Luke Skywalker'));

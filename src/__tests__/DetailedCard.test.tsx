@@ -111,9 +111,7 @@ describe('CharacterDetail Component', () => {
                 json: () => Promise.resolve({ results: [mockCharacter] }),
             } as Response)
         );
-        const mockNavigate = jest.fn();
         const setCloseDetailMock = jest.fn();
-        const mockSetCloseDetail = jest.fn();
         const mockCloseDetail = true;
         const navigate = jest.fn();
         jest.mock('react-router-dom', () => ({

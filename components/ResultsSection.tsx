@@ -1,85 +1,65 @@
-import React, { useEffect } from 'react';
+import React, { ChangeEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
-import Loader from './Loader';
-import Pagination from './Pagination';
-import useSearchQuery from '../hooks/useSearchQuery';
+import {Pagination, Flyout, Loader} from './index';
+import { useAppDispatch, useAppSelector, useSearchQuery } from '../hooks'; 
+import { useSearchCharactersQuery } from '../store/apiSlice';
+import { setSelectedCharacter, toggleItemSelection } from '../store/characterSlice';
 
 interface Character {
     name: string;
 }
 
-interface ApiResponse {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    results: Character[];
-}
-
-interface Card {
-    id: string;
-    name: string;
-}
-
 interface ChangeName {
-    changeName: (name: string) => void;
     setCloseDetail: (condition: boolean) => void;
-    cards?: Card[]
 }
 
-const ResultsSection: React.FC<ChangeName> = ({ changeName, setCloseDetail, cards = [] }) => {
+const ResultsSection: React.FC<ChangeName> = ({ setCloseDetail }) => {
     const [searchTerm] = useSearchQuery(" ");
-
     const location = useLocation();
     const navigate = useNavigate();
 
     const params = new URLSearchParams(location.search);
 
     const [page, setPage] = React.useState<number>(() => {
-        return parseInt(params.get('page') || '1', 10)
+        return parseInt(params.get('page') || '1', 10);
     });
 
-    const [results, setResults] = React.useState<Character[]>(cards);
+    const [results, setResults] = React.useState<Character[]>([]);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [totalCount, setTotalCount] = React.useState<number>(0);
+    const dispatch = useAppDispatch();
+    const selectedItems = useAppSelector((state) => state.character.selectedItems);
 
-    useEffect(() => {
-        const fetchResults = async () => {
-            if (!searchTerm) return;
-            setLoading(true);
-            try {
-                const response = await fetch(`https://swapi.dev/api/people/?search=${encodeURIComponent(searchTerm)}&page=${page}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                } else if (response.status === 404) {
-                    navigate('/not-found');
-                }
-                const data: ApiResponse = await response.json();
-                setResults(data.results);
-                setTotalCount(data.count);
 
-            } catch (error) {
-                console.error('Error fetching results:', error);
-                navigate('/not-found');
-            } finally {
-                setLoading(false);
-            }
-        };
+    const { data, isLoading } = useSearchCharactersQuery({ name: searchTerm, page });
 
-        fetchResults();
-    }, [searchTerm, page]);
+    React.useEffect(() => {
+        setLoading(isLoading)
+        if (data) {
+            setResults(data.results)
+            setTotalCount(data.count)
+        }
+    }, [data, isLoading, dispatch]);
 
     const handlePageChange = (newPage: number) => {
         params.set('page', newPage.toString());
-        setPage(newPage)
+        setPage(newPage);
         navigate({ search: params.toString() });
     };
 
     const handleCardClick = (name: string) => {
-        changeName(name);
+        dispatch(setSelectedCharacter(name));
         params.set('character', name.toString());
         navigate(`/character/${name}`);
-        setCloseDetail(true)
+        setCloseDetail(true);
+    };
+
+    const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>, toggledCharacter: { name: string }) => {
+        e.stopPropagation()
+        e.nativeEvent.stopPropagation()
+        e.isPropagationStopped()
+        dispatch(toggleItemSelection(toggledCharacter));
     };
 
     const totalPages = Math.ceil(totalCount / 10);
@@ -91,6 +71,12 @@ const ResultsSection: React.FC<ChangeName> = ({ changeName, setCloseDetail, card
                 <div role='status'><Loader /></div>
             ) : (
                 <>
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                    {Object.keys(selectedItems).length > 0 && <Flyout />}
                     <ul className="resultsList">
                         {results.map((character: Character) => (
                             <li
@@ -99,15 +85,15 @@ const ResultsSection: React.FC<ChangeName> = ({ changeName, setCloseDetail, card
                                 className="characterCard"
                                 onClick={() => handleCardClick(character.name)}
                             >
-                                <h3 className="characterName"><CgProfile /> {character.name}</h3>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedItems.some(item => item.name === character.name)}
+                                    onChange={(e) => handleCheckboxChange(e, character)}
+                                />
+                                <h3 className="characterName"> {character.name}<CgProfile /></h3>
                             </li>
                         ))}
                     </ul>
-                    <Pagination
-                        currentPage={page}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
                 </>
             )}
         </div>

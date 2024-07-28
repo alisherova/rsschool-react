@@ -1,21 +1,12 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { ChangeEvent } from 'react';
 import { CiSearch } from 'react-icons/ci';
-import useDebounce from '../hooks/useDebounce';
 import useSearchQuery from '../hooks/useSearchQuery';
 
-interface SearchSectionProps {
-    onSearch: (newSearchTerm: string) => void;
-}
-
-const SearchSection: React.FC<SearchSectionProps> = ({ onSearch }) => {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [searchTerm, setSearchTerm, setSearchTermWithUrlUpdate] = useSearchQuery(" ");
+const SearchSection: React.FC = () => {
+    const [searchTerm, setSearchTermWithUrlUpdate] = useSearchQuery(" ");
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setTimeout(() => {
-            setSearchTermWithUrlUpdate(event.target.value)
-        }, 500);
+        setSearchTermWithUrlUpdate(event.target.value);
     };
 
     return (
@@ -28,7 +19,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({ onSearch }) => {
                     onChange={handleInputChange}
                 />
                 <span className="h-line"></span>
-                <button className="searchBtn" onClick={() => onSearch(searchTerm)}>
+                <button className="searchBtn" onClick={() => setSearchTermWithUrlUpdate(searchTerm)}>
                     <CiSearch />
                 </button>
             </div>

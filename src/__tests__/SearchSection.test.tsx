@@ -5,13 +5,11 @@ import SearchSection from '../../components/SearchSection';
 import useSearchQuery from '../../hooks/useSearchQuery';
 import { useSearchParams } from 'react-router-dom';
 
-// Mock the useSearchQuery hook
 jest.mock('../../hooks/useSearchQuery', () => ({
     __esModule: true,
     default: jest.fn(),
 }));
 
-// Mock the useSearchParams hook
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useSearchParams: jest.fn(),
@@ -25,7 +23,7 @@ describe('SearchSection Component', () => {
     });
 
     it('renders input field and button', () => {
-        render(<SearchSection onSearch={jest.fn()} />);
+        render(<SearchSection />);
 
         expect(screen.getByPlaceholderText('Enter search term...')).toBeInTheDocument();
     });
@@ -34,7 +32,7 @@ describe('SearchSection Component', () => {
         const mockSetSearchTermWithUrlUpdate = jest.fn();
         (useSearchQuery as jest.Mock).mockReturnValue(['', jest.fn(), mockSetSearchTermWithUrlUpdate]);
 
-        render(<SearchSection onSearch={jest.fn()} />);
+        render(<SearchSection />);
 
         fireEvent.change(screen.getByPlaceholderText('Enter search term...'), {
             target: { value: 'Luke' },
@@ -49,7 +47,7 @@ describe('SearchSection Component', () => {
         const mockOnSearch = jest.fn();
         (useSearchQuery as jest.Mock).mockReturnValue(['Luke', jest.fn(), jest.fn()]);
 
-        render(<SearchSection onSearch={mockOnSearch} />);
+        render(<SearchSection />);
     });
 
     it('debounces input changes', async () => {
@@ -58,7 +56,7 @@ describe('SearchSection Component', () => {
         const mockSetSearchTermWithUrlUpdate = jest.fn();
         (useSearchQuery as jest.Mock).mockReturnValue(['', jest.fn(), mockSetSearchTermWithUrlUpdate]);
 
-        render(<SearchSection onSearch={jest.fn()} />);
+        render(<SearchSection />);
 
         fireEvent.change(screen.getByPlaceholderText('Enter search term...'), {
             target: { value: 'Luke' },
