@@ -1,29 +1,33 @@
-import { Component } from 'react';
+import React, { useEffect, useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom"
+import { MainPage, NotFoundPage } from "../pages";
 import ErrorBoundary from '../components/ErrorBoundary';
-import SearchSection from '../components/SearchSection';
-import ResultsSection from '../components/ResultsSection';
+import { CharacterDetail } from '../components';
 
+const App: React.FC = () => {
+  const navigate = useNavigate();
+  const [closeDetail, setCloseDetail] = useState<boolean>(false)
 
-class App extends Component {
-  state = {
-    searchTerm: localStorage.getItem('searchTerm') ? localStorage.getItem('searchTerm') : " ",
-  };
+  const searchTerm = localStorage.getItem('searchTerm');
+  useEffect(() => {
+    if (searchTerm && searchTerm !== " ") {
+      navigate(`/?search=${encodeURIComponent(searchTerm)}`);
+    }
+  }, [searchTerm]);
 
-  handleSearchTermChange = (newSearchTerm: string) => {
-    this.setState({ searchTerm: newSearchTerm.trim() });
-  };
-
-  render() {
-    const { searchTerm } = this.state;
-    return (
-      <ErrorBoundary>
-        <div className="app">
-          <SearchSection onSearch={this.handleSearchTermChange} />
-          <ResultsSection searchTerm={searchTerm} />
-        </div>
-      </ErrorBoundary>
-    );
-  }
+  return (
+    <ErrorBoundary>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<MainPage setCloseDetail={setCloseDetail} />}>
+            <Route path="character/:name" element={<CharacterDetail closeDetail={closeDetail} setCloseDetail={setCloseDetail} />} />
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/not-found" element={<NotFoundPage />} />
+        </Routes>
+      </div>
+    </ErrorBoundary>
+  )
 }
 
 export default App;

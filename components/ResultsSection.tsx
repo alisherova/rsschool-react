@@ -1,86 +1,103 @@
-import { Component } from 'react';
+import React, { ChangeEvent } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
+import {Pagination, Flyout, Loader} from './index';
+import { useAppDispatch, useAppSelector, useSearchQuery } from '../hooks'; 
+import { useSearchCharactersQuery } from '../store/apiSlice';
+import { setSelectedCharacter, toggleItemSelection } from '../store/characterSlice';
 
 interface Character {
     name: string;
-    height: string;
-    mass: string;
-    hair_color: string;
-    skin_color: string;
-    eye_color: string;
-    birth_year: string;
-    gender: string;
 }
 
-interface ApiResponse {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    results: Character[];
+interface ChangeName {
+    setCloseDetail: (condition: boolean) => void;
 }
 
-interface ResultsSectionProps {
-    searchTerm: string | null;
-}
+const ResultsSection: React.FC<ChangeName> = ({ setCloseDetail }) => {
+    const [searchTerm] = useSearchQuery(" ");
+    const location = useLocation();
+    const navigate = useNavigate();
 
-interface ResultsSectionState {
-    results: Character[];
-}
+    const params = new URLSearchParams(location.search);
 
-class ResultsSection extends Component<ResultsSectionProps, ResultsSectionState> {
-    state: ResultsSectionState = {
-        results: []
+    const [page, setPage] = React.useState<number>(() => {
+        return parseInt(params.get('page') || '1', 10);
+    });
+
+    const [results, setResults] = React.useState<Character[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [totalCount, setTotalCount] = React.useState<number>(0);
+    const dispatch = useAppDispatch();
+    const selectedItems = useAppSelector((state) => state.character.selectedItems);
+
+
+    const { data, isLoading } = useSearchCharactersQuery({ name: searchTerm, page });
+
+    React.useEffect(() => {
+        setLoading(isLoading)
+        if (data) {
+            setResults(data.results)
+            setTotalCount(data.count)
+        }
+    }, [data, isLoading, dispatch]);
+
+    const handlePageChange = (newPage: number) => {
+        params.set('page', newPage.toString());
+        setPage(newPage);
+        navigate({ search: params.toString() });
     };
 
-    componentDidMount() {
-        this.fetchResults();
-    }
-
-    componentDidUpdate(prevProps: ResultsSectionProps) {
-        if (this.props.searchTerm !== prevProps.searchTerm) {
-            this.fetchResults();
-        }
-    }
-
-    fetchResults = async () => {
-        const { searchTerm } = this.props;
-        try {
-            const response = await fetch(`https://swapi.dev/api/people/?search=${encodeURIComponent(searchTerm!)}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const data: ApiResponse = await response.json();
-            this.setState({ results: data.results });
-        } catch (error) {
-            console.error('Error fetching results:', error);
-        }
+    const handleCardClick = (name: string) => {
+        dispatch(setSelectedCharacter(name));
+        params.set('character', name.toString());
+        navigate(`/character/${name}`);
+        setCloseDetail(true);
     };
 
-    render() {
-        const { results } = this.state;
+    const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>, toggledCharacter: { name: string }) => {
+        e.stopPropagation()
+        e.nativeEvent.stopPropagation()
+        e.isPropagationStopped()
+        dispatch(toggleItemSelection(toggledCharacter));
+    };
 
-        return (
-            <div className="resultsSection">
-                <h2>Search Results</h2>
-                <ul className="resultsList">
-                    {results.map((character: Character) => (
-                        <li key={character.name} className="characterCard">
-                            <h3 className="characterName"> <CgProfile /> {character.name}</h3>
-                            <div className="characterDetails">
-                                <p className="characterDetailItem">Height: {character.height}</p>
-                                <p className="characterDetailItem">Mass: {character.mass}</p>
-                                <p className="characterDetailItem">Hair Color: {character.hair_color}</p>
-                                <p className="characterDetailItem">Skin Color: {character.skin_color}</p>
-                                <p className="characterDetailItem">Eye Color: {character.eye_color}</p>
-                                <p className="characterDetailItem">Birth Year: {character.birth_year}</p>
-                                <p className="characterDetailItem">Gender: {character.gender}</p>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        );
-    }
-}
+    const totalPages = Math.ceil(totalCount / 10);
+
+    return (
+        <div className="resultsSection">
+            <h2>Search Results</h2>
+            {loading ? (
+                <div role='status'><Loader /></div>
+            ) : (
+                <>
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                    {Object.keys(selectedItems).length > 0 && <Flyout />}
+                    <ul className="resultsList">
+                        {results.map((character: Character) => (
+                            <li
+                                id={character.name}
+                                key={character.name}
+                                className="characterCard"
+                                onClick={() => handleCardClick(character.name)}
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={selectedItems.some(item => item.name === character.name)}
+                                    onChange={(e) => handleCheckboxChange(e, character)}
+                                />
+                                <h3 className="characterName"> {character.name}<CgProfile /></h3>
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )}
+        </div>
+    );
+};
 
 export default ResultsSection;
