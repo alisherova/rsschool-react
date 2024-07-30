@@ -1,22 +1,19 @@
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useRouter } from "next/router"
 import { IoMdClose } from "react-icons/io";
 import Loader from './Loader';
-import { useGetCharacterDetailQuery } from "../../store/apiSlice"
+import { useGetCharacterDetailQuery } from "../store/apiSlice"
+import { setCloseDetail } from '../store/characterSlice';
+import { useAppDispatch } from '../hooks';
 
-interface DetailedCharacterName {
-    name?: string | undefined;
-    closeDetail: boolean;
-    setCloseDetail: (value: boolean) => void;
-}
 
-const CharacterDetail: React.FC<DetailedCharacterName> = ({ closeDetail, setCloseDetail }) => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const params = new URLSearchParams(location.search);
-    const { name } = useParams<{ name: string }>();
-    const { data, isLoading } = useGetCharacterDetailQuery(name || '');
-
+const CharacterDetail: React.FC = () => {
+    const router = useRouter();
+    const { query } = router;
+    const dispatch = useAppDispatch()
+    const name = router.query.character;
+    const characterName = Array.isArray(name) ? name[0] : name || '';
+    const { data, isLoading } = useGetCharacterDetailQuery(characterName);
     if (isLoading) {
         return <div role="status"><Loader /></div>;
     }
@@ -26,12 +23,17 @@ const CharacterDetail: React.FC<DetailedCharacterName> = ({ closeDetail, setClos
     }
 
     const closeDetailFunc = () => {
-        setCloseDetail(false)
-        navigate({ pathname: '/', search: params.toString() });
+        const updatedQuery = { ...query };
+        delete updatedQuery.character;
+        router.push({
+            pathname: router.pathname,
+            query: updatedQuery,
+        }, undefined, { shallow: true });
+        dispatch(setCloseDetail(false))
     }
 
     return (
-        closeDetail && <div className="characterDetail">
+        <div className="characterDetail">
             <div className='closeBtn' onClick={() => closeDetailFunc()} data-testid="close-button"><IoMdClose /></div>
             <h2>{data.name}</h2>
             <p>Height: {data.height}</p>

@@ -3,12 +3,14 @@ import { apiSlice } from './apiSlice';
 import themeReducer from './themeSlice';
 import characterReducer from './characterSlice';
 import searchReducer from './searchSlice';
+import paginationReducer from './paginationSlice';
 
 const store = configureStore({
   reducer: {
     theme: themeReducer,
     character: characterReducer,
     search: searchReducer,
+    pagination: paginationReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>

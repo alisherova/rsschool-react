@@ -1,12 +1,13 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { CiSearch } from 'react-icons/ci';
 import useSearchQuery from '../hooks/useSearchQuery';
 
 const SearchSection: React.FC = () => {
-    const [searchTerm, setSearchTermWithUrlUpdate] = useSearchQuery(" ");
+    const [newSearchTerm, setNewSearchTerm] = useState<string>("")
+    const [searchTerm, setSearchTermWithUrlUpdate] = useSearchQuery();
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setSearchTermWithUrlUpdate(event.target.value);
+        setNewSearchTerm(event.target.value);
     };
 
     return (
@@ -16,10 +17,10 @@ const SearchSection: React.FC = () => {
                     type="text"
                     placeholder="Enter search term..."
                     defaultValue={searchTerm}
-                    onChange={handleInputChange}
+                    onChange={(event) => handleInputChange(event)}
                 />
                 <span className="h-line"></span>
-                <button className="searchBtn" onClick={() => setSearchTermWithUrlUpdate(searchTerm)}>
+                <button className="searchBtn" onClick={() => setSearchTermWithUrlUpdate(newSearchTerm)}>
                     <CiSearch />
                 </button>
             </div>

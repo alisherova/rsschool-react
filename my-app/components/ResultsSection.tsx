@@ -1,38 +1,30 @@
 import React, { ChangeEvent } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useRouter } from "next/router";
 import { CgProfile } from "react-icons/cg";
 import { Pagination, Flyout, Loader } from './index';
-import { useAppDispatch, useAppSelector, useSearchQuery } from '../../hooks';
-import { useSearchCharactersQuery } from '../../store/apiSlice';
-import { setSelectedCharacter, toggleItemSelection } from '../../store/characterSlice';
+import { useAppDispatch, useAppSelector, useSearchQuery } from '../hooks';
+import { useSearchCharactersQuery } from '../store/apiSlice';
+import { setSelectedCharacter, setCloseDetail, toggleItemSelection } from '../store/characterSlice';
+import { RootState } from '../store';
+import { setPage } from '../store/paginationSlice';
 
 interface Character {
     name: string;
 }
 
-interface ChangeName {
-    setCloseDetail: (condition: boolean) => void;
-}
+const ResultsSection: React.FC = () => {
+    const [searchTerm] = useSearchQuery();
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+    const params = new URLSearchParams(router.query as any);
 
-const ResultsSection: React.FC<ChangeName> = ({ setCloseDetail }) => {
-    const [searchTerm] = useSearchQuery(" ");
-    const location = useLocation();
-    const navigate = useNavigate();
-
-    const params = new URLSearchParams(location.search);
-
-    const [page, setPage] = React.useState<number>(() => {
-        return parseInt(params.get('page') || '1', 10);
-    });
+    const selectedItems = useAppSelector((state) => state.character.selectedItems);
+    const page = useAppSelector((state: RootState) => state.pagination.currentPage)
+    const { data, isLoading } = useSearchCharactersQuery({ name: searchTerm, page });
 
     const [results, setResults] = React.useState<Character[]>([]);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [totalCount, setTotalCount] = React.useState<number>(0);
-    const dispatch = useAppDispatch();
-    const selectedItems = useAppSelector((state) => state.character.selectedItems);
-
-
-    const { data, isLoading } = useSearchCharactersQuery({ name: searchTerm, page });
 
     React.useEffect(() => {
         setLoading(isLoading)
@@ -44,15 +36,15 @@ const ResultsSection: React.FC<ChangeName> = ({ setCloseDetail }) => {
 
     const handlePageChange = (newPage: number) => {
         params.set('page', newPage.toString());
-        setPage(newPage);
-        navigate({ search: params.toString() });
+        dispatch(setPage(newPage))
+        router.push(`/?page=${newPage}`, undefined, { shallow: true });
     };
 
     const handleCardClick = (name: string) => {
         dispatch(setSelectedCharacter(name));
         params.set('character', name.toString());
-        navigate(`/character/${name}`);
-        setCloseDetail(true);
+        router.push(`/?${params.toString()}`, undefined, { shallow: true });
+        dispatch(setCloseDetail(true))
     };
 
     const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>, toggledCharacter: { name: string }) => {

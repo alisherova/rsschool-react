@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { unselectAllItems } from '../../store/characterSlice';
-import { saveAsCsv } from '../../utils/csvUtils';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { unselectAllItems } from '../store/characterSlice';
+import { saveAsCsv } from '../utils/csvUtils';
 
 const Flyout: React.FC = () => {
     const dispatch = useAppDispatch();

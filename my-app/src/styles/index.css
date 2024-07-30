@@ -30,14 +30,14 @@ body {
 .mainPageContainer {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   min-height: 100vh;
   padding: 1rem;
 }
 
 .mainWrapper {
-  width: 80%;
   max-width: 1200px;
+  width: 60%;
 }
 
 .hidden {
@@ -45,7 +45,7 @@ body {
 }
 
 .characterDetail {
-  width: 60%;
+  width: 25%;
   margin: 2rem auto;
   display: flex;
   flex-direction: column;
