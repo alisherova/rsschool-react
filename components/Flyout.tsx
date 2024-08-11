@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { unselectAllItems } from '../store/characterSlice';

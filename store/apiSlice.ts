@@ -26,11 +26,17 @@ export const apiSlice = createApi({
       ApiResponse,
       { name: string; page: number }
     >({
-      query: ({ name, page }) => `people/?search=${name}&page=${page}`,
+      query: ({ name, page }) =>
+        `people/?search=${encodeURIComponent(name)}&page=${page}`,
     }),
     getCharacterDetail: builder.query<Character, string>({
       query: (name) => `people/?search=${encodeURIComponent(name)}`,
-      transformResponse: (response: ApiResponse) => response.results[0],
+      transformResponse: (response: ApiResponse) => {
+        if (!response.results || response.results.length === 0) {
+          throw new Error('Character not found');
+        }
+        return response.results[0];
+      },
     }),
   }),
 });

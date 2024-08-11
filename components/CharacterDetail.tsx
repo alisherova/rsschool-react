@@ -1,5 +1,7 @@
+'use client'
+
 import React from 'react';
-import { useRouter } from "next/router"
+import { useRouter, useSearchParams } from "next/navigation"
 import { IoMdClose } from "react-icons/io";
 import Loader from './Loader';
 import { useGetCharacterDetailQuery } from "../store/apiSlice"
@@ -9,9 +11,9 @@ import { useAppDispatch } from '../hooks';
 
 const CharacterDetail: React.FC = () => {
     const router = useRouter();
-    const { query } = router;
     const dispatch = useAppDispatch()
-    const name = router.query.character;
+    const searchParams = useSearchParams();
+    const name = searchParams.get('character');
     const characterName = Array.isArray(name) ? name[0] : name || '';
     const { data, isLoading } = useGetCharacterDetailQuery(characterName);
     if (isLoading) {
@@ -23,13 +25,10 @@ const CharacterDetail: React.FC = () => {
     }
 
     const closeDetailFunc = () => {
-        const updatedQuery = { ...query };
-        delete updatedQuery.character;
-        router.push({
-            pathname: router.pathname,
-            query: updatedQuery,
-        }, undefined, { shallow: true });
-        dispatch(setCloseDetail(false))
+        const currentQuery = new URLSearchParams(window.location.search);
+        currentQuery.delete('character');
+        router.push(`${window.location.pathname}?${currentQuery.toString()}`);
+        dispatch(setCloseDetail(false));
     }
 
     return (

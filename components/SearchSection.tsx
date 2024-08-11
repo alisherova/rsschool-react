@@ -1,3 +1,4 @@
+'use client'
 import React, { ChangeEvent, useState } from 'react';
 import { CiSearch } from 'react-icons/ci';
 import useSearchQuery from '../hooks/useSearchQuery';

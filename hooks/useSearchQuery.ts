@@ -1,5 +1,6 @@
+'use client';
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { RootState } from '../store';
 import { setSearchTerm } from '../store/searchSlice';
 import { useAppDispatch, useAppSelector } from '.';
@@ -10,41 +11,33 @@ const useSearchQuery = () => {
     (state: RootState) => state.search.searchTerm
   );
   const router = useRouter();
-  const { query } = router;
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const { search } = router.query;
+    const search = searchParams.get('search');
     if (search) {
       dispatch(setSearchTerm(search as string));
     } else if (searchTerm && searchTerm.trim() !== '') {
-      const params = new URLSearchParams(router.query as any);
+      const params = new URLSearchParams(searchParams.toString());
       if (searchTerm !== ' ') {
         params.set('search', searchTerm);
-        router.push({ query: params.toString() });
+        router.push(`${window.location.pathname}?${params.toString()}`);
       } else {
-        const updatedQuery = { ...query };
-        delete updatedQuery.search;
+        params.delete('search');
+        router.push(`${window.location.pathname}?${params.toString()}`);
       }
     }
-  }, [router.query]);
+  }, [searchParams]);
 
   const setSearchTermWithUrlUpdate = (newSearchTerm: string) => {
     dispatch(setSearchTerm(newSearchTerm));
     const params = new URLSearchParams(location.search);
     if (newSearchTerm !== '') {
       params.set('search', newSearchTerm);
-      router.push({ query: params.toString() });
+      router.push(`${window.location.pathname}?${params.toString()}`);
     } else {
-      const updatedQuery = { ...query };
-      delete updatedQuery.search;
-      router.push(
-        {
-          pathname: router.pathname,
-          query: updatedQuery,
-        },
-        undefined,
-        { shallow: true }
-      );
+      params.delete('search');
+      router.push(`${window.location.pathname}?${params.toString()}`);
     }
   };
 

@@ -1,20 +1,24 @@
+'use client'
+
 import React, { useEffect } from 'react';
-import { useRouter } from "next/router"
-import { SearchSection, ResultsSection, ThemeSelector, CharacterDetail } from '../../components';
-import { useAppSelector } from '../../hooks';
-import { RootState } from '../../store';
+import { useRouter, useSearchParams } from "next/navigation"
+import { SearchSection, ResultsSection, ThemeSelector, CharacterDetail } from '.';
+import { useAppSelector } from '../hooks';
+import { RootState } from '../store';
 
 const MainPage: React.FC = () => {
     const router = useRouter()
-    const { query } = router;
-    const { character } = router.query;
+    const searchParams = useSearchParams();
+    const character = searchParams.get('character');
     const closeDetail = useAppSelector((state: RootState) => state.character.closeDetail);
 
     useEffect(() => {
+        const query = Object.fromEntries(searchParams.entries());
+
         if (!isValidQuery(query)) {
             router.replace('/404');
         }
-    }, [query]);
+    }, [searchParams, router]);
 
     const isValidQuery = (query: { [key: string]: string | string[] | undefined }) => {
         const character = query.character;

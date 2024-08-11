@@ -1,7 +1,6 @@
 "use client"
-// components/ResultsSection.tsx
 import React, { ChangeEvent } from 'react';
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { CgProfile } from "react-icons/cg";
 import { Pagination, Flyout, Loader } from './index';
 import { useAppDispatch, useAppSelector, useSearchQuery } from '../hooks';
@@ -18,7 +17,7 @@ const ResultsSection: React.FC = () => {
     const [searchTerm] = useSearchQuery();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const params = new URLSearchParams(router.query as any);
+    const params = new URLSearchParams(window?.location.search);
 
     const selectedItems = useAppSelector((state) => state.character.selectedItems);
     const page = useAppSelector((state: RootState) => state.pagination.currentPage)
@@ -39,13 +38,13 @@ const ResultsSection: React.FC = () => {
     const handlePageChange = (newPage: number) => {
         params.set('page', newPage.toString());
         dispatch(setPage(newPage))
-        router.push(`/?page=${newPage}`, undefined, { shallow: true });
+        router.push(`/?page=${newPage}`);
     };
 
     const handleCardClick = (name: string) => {
         dispatch(setSelectedCharacter(name));
         params.set('character', name.toString());
-        router.push(`/?${params.toString()}`, undefined, { shallow: true });
+        router.push(`/?${params.toString()}`);
         dispatch(setCloseDetail(true))
     };
 
