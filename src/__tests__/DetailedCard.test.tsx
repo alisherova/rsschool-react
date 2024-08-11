@@ -1,14 +1,14 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { screen, waitFor, fireEvent, act } from '@testing-library/react';
 import CharacterDetail from '../../components/CharacterDetail';
 import '@testing-library/jest-dom';
+import { render } from '../../utils/test-utils';
 
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useParams: () => ({ name: 'Luke Skywalker' }),
-    useLocation: () => ({ search: '' }),
-    useNavigate: () => jest.fn(),
+jest.mock('next/router', () => ({
+    useRouter: () => ({
+        query: { name: 'Luke Skywalker' },
+        push: jest.fn(),
+    }),
 }));
 
 const mockCharacter = {
@@ -36,11 +36,7 @@ describe('CharacterDetail Component', () => {
         );
 
         await act(async () => {
-            render(
-                <Router>
-                    <CharacterDetail closeDetail={true} setCloseDetail={jest.fn()} />
-                </Router>
-            );
+            render(<CharacterDetail />);
         });
         await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
     });
@@ -54,11 +50,7 @@ describe('CharacterDetail Component', () => {
         );
 
         await act(async () => {
-            render(
-                <Router>
-                    <CharacterDetail closeDetail={true} setCloseDetail={jest.fn()} />
-                </Router>
-            );
+            render(<CharacterDetail />);
         });
 
         await waitFor(() => screen.getByText(/Luke Skywalker/i));
@@ -81,10 +73,12 @@ describe('CharacterDetail Component', () => {
     });
 
     it('navigates to not-found when character is not found', async () => {
-        const navigate = jest.fn();
-        jest.mock('react-router-dom', () => ({
-            ...jest.requireActual('react-router-dom'),
-            useNavigate: () => navigate,
+        const push = jest.fn();
+        jest.mock('next/router', () => ({
+            useRouter: () => ({
+                query: { name: 'Unknown Character' },
+                push,
+            }),
         }));
 
         global.fetch = jest.fn(() =>
@@ -95,13 +89,10 @@ describe('CharacterDetail Component', () => {
         );
 
         await act(async () => {
-            render(
-                <Router>
-                    <CharacterDetail closeDetail={true} setCloseDetail={jest.fn()} />
-                </Router>
-            );
+            render(<CharacterDetail />);
         });
 
+        await waitFor(() => expect(push).toHaveBeenCalledWith('/not-found'));
     });
 
     it('calls setCloseDetail and navigates on close button click', async () => {
@@ -112,24 +103,24 @@ describe('CharacterDetail Component', () => {
             } as Response)
         );
         const setCloseDetailMock = jest.fn();
-        const mockCloseDetail = true;
-        const navigate = jest.fn();
-        jest.mock('react-router-dom', () => ({
-            ...jest.requireActual('react-router-dom'),
-            useNavigate: () => navigate,
+        const push = jest.fn();
+        jest.mock('next/router', () => ({
+            useRouter: () => ({
+                query: { name: 'Luke Skywalker' },
+                push,
+            }),
         }));
 
         await act(async () => {
-            render(
-                <Router>
-                    <CharacterDetail closeDetail={true} setCloseDetail={setCloseDetailMock} />
-                </Router>
-            );
+            render(<CharacterDetail />);
         });
 
         await waitFor(() => screen.getByText(/Luke Skywalker/i));
 
         const closeButton = screen.getByTestId('close-button');
         fireEvent.click(closeButton);
+
+        expect(setCloseDetailMock).toHaveBeenCalledWith(true);
+        expect(push).toHaveBeenCalledWith('/');
     });
 });

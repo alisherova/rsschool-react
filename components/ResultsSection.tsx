@@ -1,3 +1,5 @@
+"use client"
+// components/ResultsSection.tsx
 import React, { ChangeEvent } from 'react';
 import { useRouter } from "next/router";
 import { CgProfile } from "react-icons/cg";
@@ -32,7 +34,7 @@ const ResultsSection: React.FC = () => {
             setResults(data.results)
             setTotalCount(data.count)
         }
-    }, [data, isLoading, dispatch]);
+    }, [data, isLoading]);
 
     const handlePageChange = (newPage: number) => {
         params.set('page', newPage.toString());
@@ -50,7 +52,6 @@ const ResultsSection: React.FC = () => {
     const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>, toggledCharacter: { name: string }) => {
         e.stopPropagation()
         e.nativeEvent.stopPropagation()
-        e.isPropagationStopped()
         dispatch(toggleItemSelection(toggledCharacter));
     };
 

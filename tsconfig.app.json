@@ -33,6 +33,7 @@
     "hooks/*.ts",
     "pages/*.ts",
     "pages/*.tsx",
+    "utils/*.tsx",
     "hooks/useSearchQuery.ts",
   ]
 }

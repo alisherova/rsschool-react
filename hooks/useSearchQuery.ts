@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { setSearchTerm } from '../store/searchSlice';
+import { useAppDispatch, useAppSelector } from '.';
 
 const useSearchQuery = () => {
-  const dispatch = useDispatch();
-  const searchTerm = useSelector((state: RootState) => state.search.searchTerm);
+  const dispatch = useAppDispatch();
+  const searchTerm = useAppSelector(
+    (state: RootState) => state.search.searchTerm
+  );
   const router = useRouter();
   const { query } = router;
 
