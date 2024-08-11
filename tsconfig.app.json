@@ -26,8 +26,14 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src/**/*.tsx", // Example include pattern, adjust to match your project structure
+    "src/**/*.tsx",
     "src/**/*.ts",
     "components/*.tsx",
+    "components/*.jsx",
+    "hooks/*.ts",
+    "pages/*.ts",
+    "pages/*.tsx",
+    "utils/*.tsx",
+    "hooks/useSearchQuery.ts",
   ]
 }
