@@ -22,13 +22,22 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "~/*": [
+        "./app/*"
+      ]
+    },
+    "baseUrl": ".",
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts",
-    "components/MainPage.tsx"
+    "components/MainPage.tsx",
+    "remix.env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
   ],
   "exclude": [
     "node_modules",
